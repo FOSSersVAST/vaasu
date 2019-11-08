@@ -2,7 +2,7 @@ import requests
 import json
 username = input("Enter the username: ").upper()
 password = input("Enter the password: ")
-def get_attendence(username, password):
+def get_attendance(username, password):
 
     #Gets the session id and sid
     url = "https://erp.vidyaacademy.ac.in/web/session/authenticate"
@@ -35,13 +35,13 @@ def get_attendence(username, password):
 
 
 
-    #Gets the attendence
+    #Gets the attendance
     payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status.lines","method":"read","args":[subs,["course","course_percentage"]],"kwargs":{"context":{}},"session_id":session_id,"context":{}}}
     headers = {'user-agent': "Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0"}
     r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
-    Attendence = {}
+    Attendance = {}
     for i in r.json()["result"]:
-        Attendence[i["course"][1]] = i["course_percentage"]
-    return Attendence
+        Attendance[i["course"][1]] = i["course_percentage"]
+    return Attendance
 
-get_attendence(username,password)
+get_attendance(username,password)
