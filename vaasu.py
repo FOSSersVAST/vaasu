@@ -13,7 +13,9 @@ Press Ctrl-C on the command line or send a signal to the process to stop the
 bot.
 """
 
+import os
 import logging
+from dotenv import load_dotenv
 
 from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
@@ -27,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 GETID, PASS, LOCATION, BIO = range(4)
 
+load_dotenv()
 
 def start(update, context):
 
@@ -115,7 +118,7 @@ def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater("1031724769:AAHt0XL_CZp6ryMKD3ko-Dm9o6N9l0HUv7g", use_context=True)
+    updater = Updater(os.getenv('BOT_TOKEN'), use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
