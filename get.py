@@ -44,4 +44,6 @@ def get_attendance(username, password):
         Attendance[i["course"][1]] = i["course_percentage"]
     return Attendance
 
-get_attendance(username,password)
+
+for k, v in get_attendance(username, password).items():
+    print(k, ' - ', v)
