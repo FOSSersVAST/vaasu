@@ -21,45 +21,70 @@ from telegram import (ReplyKeyboardMarkup, ReplyKeyboardRemove)
 from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
 
+import libvaasu
+
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
-GETID, PASS, LOCATION, BIO = range(4)
+GETERPUSERNAME, GETERPPASSWORD = range(2)
 
 load_dotenv()
+
+# For storing temporary values in conversations
+temp = {
+	'erpusernames': {}
+}
 
 def start(update, context):
 
     update.message.reply_text(
         'Hi! My name is Vaassu Bot. I will get all attendence details, '
         'so that you guys can bunk class more often 😜.\n\n'
-        # 'Type /login to login to get your attendence.'
-        'Type /stop to stop me😥',
+        'Setup this bot : /login\n'
+        'Get attendance: /attendance',
         reply_markup=ReplyKeyboardRemove())
 
-    return GETID
+    return
 
+def login(update, context):
+	update.message.reply_text(
+		'Tell me your ERP username:',
+		reply_markup=ReplyKeyboardRemove()
+	)
 
-def getid(update, context):
+	return GETERPUSERNAME
+
+def get_erpusername(update, context):
     user = update.message.from_user
+    msg = update.message.text
     logger.info("User %s started the bot.", user.first_name)
-    update.message.reply_text('please enter your id ')
 
-    return PASS
+    temp['erpusernames'][user.id] = msg
+
+    update.message.reply_text('Okay, now tell me your ERP password:')
+
+    return GETERPPASSWORD
 
 
-def getpass(update, context):
+def get_erppassword(update, context):
     user = update.message.from_user
-    # photo_file = update.message.photo[-1].get_file()
-    # photo_file.download('user_photo.jpg')
-    logger.info("ID of %s: %s", user.first_name, user.message.text)
-    update.message.reply_text('Gorgeous! Now, send me your location please, '
-                              'or send /skip if you don\'t want to.')
+    msg = update.message.text
 
-    return LOCATION
+    erpusername = temp['erpusernames'][user.id]
+
+    login = libvaasu.login(erpusername, msg)
+    if login == 'wrong':
+        update.message.reply_text('Username or password wrong. Try again : /login')
+    else:
+        # Insert to database here
+        update.message.reply_text('Registrtion successful. Now you can use Vaasu bot :)')
+
+    # /start conversation has ended
+    return ConversationHandler.END
 
 
 # def skip_photo(update, context):
@@ -107,7 +132,7 @@ def stop(update, context):
         'Bye! I hope we can meet again at Iraani.',
         reply_markup=ReplyKeyboardRemove())
 
-    return 
+    return ConversationHandler.END
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -125,14 +150,12 @@ def main():
 
     # Add conversation handler with the states GENDER, PHOTO, LOCATION and BIO
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
+        entry_points=[CommandHandler('login', login)],
 
         states={
-            GETID: [MessageHandler(Filters.text, getid)],
+            GETERPUSERNAME: [MessageHandler(Filters.text, get_erpusername)],
 
-            PASS: [MessageHandler(Filters.text, getpass)],
-
-            LOCATION: [MessageHandler(Filters.location, location)],
+            GETERPPASSWORD: [MessageHandler(Filters.text, get_erppassword)],
 
             # BIO: [MessageHandler(Filters.text, bio)],
 
@@ -143,6 +166,7 @@ def main():
         fallbacks=[CommandHandler('stop', stop)]
     )
 
+    dp.add_handler(CommandHandler("start", start))
     dp.add_handler(conv_handler)
 
     # log all errors
