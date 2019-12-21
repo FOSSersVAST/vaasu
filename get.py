@@ -1,16 +1,21 @@
 import requests
 import json
+import libvaasu
+
+
 username = input("Enter the username: ").upper()
 password = input("Enter the password: ")
+
 def get_attendance(username, password):
 
     #Gets the session id and sid
-    url = "https://erp.vidyaacademy.ac.in/web/session/authenticate"
-    payload = {"jsonrpc":"2.0","method":"call","params":{"db":"liveone","login":username,"password":password,"base_location":"https://erp.vidyaacademy.ac.in","context":{}},"id":"r7"}
-    headers = {'user-agent': "Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0"}
-    r = requests.post(url,data=json.dumps(payload))
-    sid = r.cookies.get_dict()["sid"]
-    session_id = r.json()["result"]["session_id"]
+    login = libvaasu.login(username, password)
+    if (login == 'wrong'):
+        print('Username or password wrong')
+        raise Exception('Password wrong')
+    else:
+        sid = login[0]
+        session_id = login[1]
 
     #Gets args value
     url = "https://erp.vidyaacademy.ac.in/web/dataset/call_kw"
