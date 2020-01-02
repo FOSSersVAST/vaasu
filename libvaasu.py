@@ -16,7 +16,7 @@ def add_student(username, password, telegram_id):
     cur.execute("INSERT INTO CREDENTIALS VALUES(?,?,?)",(username, password, telegram_id))
     conn.commit()
 
-def login(username, password, telegram_id):
+def login(username, password):
     username = username.upper()
     # Gets the session id and sid
     url = "https://erp.vidyaacademy.ac.in/web/session/authenticate"
@@ -30,6 +30,5 @@ def login(username, password, telegram_id):
     else:
         sid = r.cookies.get_dict()["sid"]
         session_id = result["result"]["session_id"]
-        add_student(username, password, telegram_id)
 
         return sid, session_id

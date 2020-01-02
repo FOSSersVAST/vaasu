@@ -79,11 +79,11 @@ def get_erppassword(update, context):
     user = update.message.from_user
     telegram_id = user.id
 
-    login = libvaasu.login(erpusername, msg, telegram_id)
+    login = libvaasu.login(erpusername, msg)
     if login == 'wrong':
         update.message.reply_text('Username or password wrong. Try again : /login')
     else:
-        # Insert to database here
+        libvaasu.add_student(username, password, telegram_id)
         update.message.reply_text('Registrtion successful. Now you can use Vaasu bot :)')
 
     # /start conversation has ended
@@ -145,7 +145,7 @@ def error(update, context):
 def getattendance(username, password):
     user = update.message.from_user
     telegram_id = user.id
-    Attendance = get.get_attendance(username, password, telegram_id)
+    Attendance = get.get_attendance(username, password)
 
 
 def main():

@@ -3,10 +3,10 @@ import json
 import libvaasu
 
 
-def get_attendance(username, password, telegram_id):
+def get_attendance(username, password):
 
     #Gets the session id and sid
-    login = libvaasu.login(username, password, telegram_id)
+    login = libvaasu.login(username, password)
     if (login == 'wrong'):
         print('Username or password wrong')
         raise Exception('Password wrong')
