@@ -3,6 +3,9 @@ import json
 import libvaasu
 
 
+username = input("Enter the username: ").upper()
+password = input("Enter the password")
+
 def get_attendance(username, password):
 
     #Gets the session id and sid
@@ -47,7 +50,5 @@ def get_attendance(username, password):
     return Attendance
 
 
-"""
 for k, v in get_attendance(username, password).items():
     print(k, ' - ', v)
-"""
