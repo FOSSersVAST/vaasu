@@ -1,8 +1,22 @@
 import requests
 import json
+import sqlite3
 
 
-def login(username, password):
+def create_table(conn):
+    conn.execute('''CREATE TABLE IF NOT EXISTS CREDENTIALS 
+         (username  CHAR(30)  NOT NULL,
+         password   CHAR(30)   NOT NULL
+         telegram_id    CHAR(30)    NOT NULL);''')
+
+def add_student(username, password, telegram_id):
+    conn = sqlite3.connect("Attendance.sqlite3")
+    create_table(conn)
+    cur = conn.cursor()
+    cur.execute("INSERT INTO CREDENTIALS VALUES(?,?,?)",(username, password, telegram_id))
+    conn.commit()
+
+def login(username, password, telegram_id):
     username = username.upper()
     # Gets the session id and sid
     url = "https://erp.vidyaacademy.ac.in/web/session/authenticate"
@@ -16,5 +30,6 @@ def login(username, password):
     else:
         sid = r.cookies.get_dict()["sid"]
         session_id = result["result"]["session_id"]
+        add_student(username, password, telegram_id)
 
         return sid, session_id
