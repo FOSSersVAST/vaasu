@@ -1,6 +1,21 @@
 import requests
 import json
+import sqlite3
 
+
+def create_table(conn):
+    conn.execute('''CREATE TABLE IF NOT EXISTS CREDENTIALS 
+         (username  CHAR(30)  NOT NULL,
+         password   CHAR(30)   NOT NULL
+         telegram_id    CHAR(30)    NOT NULL);''')
+
+def add_student(username, password, telegram_id):
+    conn = sqlite3.connect("Attendance.sqlite3")
+    create_table(conn)
+    cur = conn.cursor()
+    cur.execute("INSERT INTO CREDENTIALS VALUES(?,?,?)",(username, password, telegram_id))
+    conn.commit()
+    conn.close()
 
 def login(username, password):
     username = username.upper()

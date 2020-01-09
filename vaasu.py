@@ -22,6 +22,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
 
 import libvaasu
+import get
 
 
 # Enable logging
@@ -75,12 +76,14 @@ def get_erppassword(update, context):
     msg = update.message.text
 
     erpusername = temp['erpusernames'][user.id]
+    user = update.message.from_user
+    telegram_id = user.id
 
     login = libvaasu.login(erpusername, msg)
     if login == 'wrong':
         update.message.reply_text('Username or password wrong. Try again : /login')
     else:
-        # Insert to database here
+        libvaasu.add_student(username, password, telegram_id)
         update.message.reply_text('Registrtion successful. Now you can use Vaasu bot :)')
 
     # /start conversation has ended
@@ -139,11 +142,17 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
+def getattendance(username, password):
+    user = update.message.from_user
+    telegram_id = user.id
+    Attendance = get.get_attendance(username, password)
+
+
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(os.getenv('BOT_TOKEN'), use_context=True)
+    updater = Updater(os.getenv('BOT_TOKEN')) #use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher

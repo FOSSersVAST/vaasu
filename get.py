@@ -4,7 +4,7 @@ import libvaasu
 
 
 username = input("Enter the username: ").upper()
-password = input("Enter the password: ")
+password = input("Enter the password")
 
 def get_attendance(username, password):
 
