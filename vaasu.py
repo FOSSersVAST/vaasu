@@ -90,7 +90,7 @@ def get_erppassword(update, context):
     if login == 'wrong':
         update.message.reply_text('Username or password wrong. Try again : /login')
     else:
-        libvaasu.add_student(username, password, telegram_id)
+        libvaasu.add_student(erpusername, msg, telegram_id)
         update.message.reply_text('Registrtion successful. Now you can use Vaasu bot :)')
 
     # /start conversation has ended
@@ -143,17 +143,27 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def getattendance():
+def getattendance(update, context):
     user = update.message.from_user
     telegram_id = user.id
     Attendance = libvaasu.get_attendance(telegram_id)
-    return Attendance
+    if Attendance=={}:
+        update.message.reply_text("Seems like there is some issues with the website!")
+    elif Attendance:
+        update.message.reply_text(Attendance)
+    else:
+        update.message.reply_text("It seems you have not registered yet. Register with /login")
+    return ConversationHandler.END
 
 
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
+
+    #Creates table in the database
+    libvaasu.create_table()
+
     updater = Updater(os.getenv('BOT_TOKEN'),use_context=True)
 
     # Get the dispatcher to register handlers
@@ -178,6 +188,7 @@ def main():
     )
 
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("attendance",getattendance))
     dp.add_handler(conv_handler)
 
     # log all errors

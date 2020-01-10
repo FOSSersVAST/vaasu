@@ -3,7 +3,8 @@ import json
 import sqlite3
 
 
-def create_table(conn):
+def create_table():
+    conn = sqlite3.connect("Attendance.sqlite3")
     conn.execute('''CREATE TABLE IF NOT EXISTS CREDENTIALS 
          (username  CHAR(30)  NOT NULL,
          password   CHAR(30)   NOT NULL,
@@ -11,7 +12,6 @@ def create_table(conn):
 
 def add_student(username, password, telegram_id):
     conn = sqlite3.connect("Attendance.sqlite3")
-    create_table(conn)
     cur = conn.cursor()
     cur.execute("INSERT INTO CREDENTIALS VALUES(?,?,?)",(username, password, telegram_id))
     conn.commit()
@@ -37,21 +37,24 @@ def login(username, password):
 def get_attendance(telegram_id):
 
     telegram_id = (telegram_id,)
-    conn = sqlite3.connect(Attendance.sqlite3)
+    conn = sqlite3.connect("Attendance.sqlite3")
     cur = conn.cursor()
     cur.execute("Select * from CREDENTIALS where telegram_id=?",telegram_id)
-    data = cur.fetchone()
-    username = data[0][0]
-    password = data[0][1]
+    data = cur.fetchall()
+    try:
+        username = data[0][0]
+        password = data[0][1]
+    except IndexError:
+        return False
     conn.close()
     #Gets the session id and sid
-    login = login(username, password)
-    if (login == 'wrong'):
+    erplogin = login(username, password)
+    if (erplogin == 'wrong'):
         print('Username or password wrong')
         raise Exception('Password wrong')
     else:
-        sid = login[0]
-        session_id = login[1]
+        sid = erplogin[0]
+        session_id = erplogin[1]
 
     #Gets args value
     url = "https://erp.vidyaacademy.ac.in/web/dataset/call_kw"
