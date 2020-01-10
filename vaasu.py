@@ -82,7 +82,7 @@ def get_erppassword(update, context):
     if login == 'wrong':
         update.message.reply_text('Username or password wrong. Try again : /login')
     else:
-        libvaasu.add_student(username, password, telegram_id)
+        libvaasu.add_student(erpusername, msg, telegram_id)
         update.message.reply_text('Registrtion successful. Now you can use Vaasu bot :)')
 
     # /start conversation has ended
