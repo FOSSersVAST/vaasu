@@ -70,6 +70,14 @@ def get_erpusername(update, context):
     return GETERPPASSWORD
 
 
+
+
+
+# def skip_photo(update, context):
+#     user = update.message.from_user
+#     logger.info("User %s did not send a photo.", user.first_name)
+#     update.message.reply_text('I bet you look great! Now, send me your location please, '
+#                               'or send /skip.')
 def get_erppassword(update, context):
     user = update.message.from_user
     msg = update.message.text
@@ -82,19 +90,13 @@ def get_erppassword(update, context):
     if login == 'wrong':
         update.message.reply_text('Username or password wrong. Try again : /login')
     else:
-        libvaasu.add_student(erpusername, msg, telegram_id)
+        libvaasu.add_student(username, password, telegram_id)
         update.message.reply_text('Registrtion successful. Now you can use Vaasu bot :)')
 
     # /start conversation has ended
     return ConversationHandler.END
 
-
-# def skip_photo(update, context):
-#     user = update.message.from_user
-#     logger.info("User %s did not send a photo.", user.first_name)
-#     update.message.reply_text('I bet you look great! Now, send me your location please, '
-#                               'or send /skip.')
-
+    
 #     return LOCATION
 
 
@@ -141,15 +143,18 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def getattendance(username, password):
-    Attendance = libvaasu.get_attendance(username, password)
+def getattendance():
+    user = update.message.from_user
+    telegram_id = user.id
+    Attendance = libvaasu.get_attendance(telegram_id)
+    return Attendance
 
 
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(os.getenv('BOT_TOKEN'), use_context=True)
+    updater = Updater(os.getenv('BOT_TOKEN'),use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher

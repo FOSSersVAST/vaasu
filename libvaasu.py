@@ -34,8 +34,16 @@ def login(username, password):
         return sid, session_id
 
 
-def get_attendance(username, password):
+def get_attendance(telegram_id):
 
+    telegram_id = (telegram_id,)
+    conn = sqlite3.connect(Attendance.sqlite3)
+    cur = conn.cursor()
+    cur.execute("Select * from CREDENTIALS where telegram_id=?",telegram_id)
+    data = cur.fetchone()
+    username = data[0][0]
+    password = data[0][1]
+    conn.close()
     #Gets the session id and sid
     login = login(username, password)
     if (login == 'wrong'):
