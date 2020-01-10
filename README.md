@@ -3,9 +3,9 @@
 This Repository holds the code for Vaasu Project
 It is an Open source Project currently bring developed for Vidya Academy of Science and Technology 
 
-The attendence data is will be as recieied from the student's college ERP
+The attendence data is will be as received from the student's college ERP
 
-VAST students can use Vaasu bot to get the attendance details by login using their credentials
+VAST students can use Vaasu bot to get the attendance details by logging in using their credentials
 
 # Projects included 
 
@@ -13,8 +13,8 @@ VIDYA ATTENDANCE BOT
 
 # Features to Add in future  developments
 
-* Add SQLite3 Database to store username and password of students with security
-* Fix existing code and create function to do following operation
+* Added SQLite3 Database for secure storage of student's usernames and passwords
+* Fixing the existing code and creating a function to do the following operations
 
 * * Get ID 
 * * Get Password

@@ -22,6 +22,7 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
 
 import libvaasu
+import get
 
 
 # Enable logging
