@@ -142,7 +142,9 @@ def error(update, context):
 
 
 def getattendance(username, password):
-    Attendance = libvaasu.get_attendance(username, password)
+    user = update.message.from_user
+    telegram_id = user.id
+    Attendance = get.get_attendance(username, password)
 
 
 def main():
