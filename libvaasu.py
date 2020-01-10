@@ -15,7 +15,6 @@ def add_student(username, password, telegram_id):
     cur = conn.cursor()
     cur.execute("INSERT INTO CREDENTIALS VALUES(?,?,?)",(username, password, telegram_id))
     conn.commit()
-    conn.close()
 
 def login(username, password):
     username = username.upper()
