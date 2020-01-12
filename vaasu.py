@@ -37,11 +37,11 @@ load_dotenv()
 # For storing temporary values in conversations
 
 temp = {
-	'erpusernames': {}
+    'erpusernames': {}
 }
 
-def start(update, context):
 
+def start(update, context):
     update.message.reply_text(
         'Hi! My name is Vaassu Bot. I will get all attendence details, '
         'so that you guys can bunk class more often 😜.\n\n'
@@ -50,6 +50,7 @@ def start(update, context):
         reply_markup=ReplyKeyboardRemove())
 
     return
+
 
 def login(update, context):
     user = update.message.from_user
@@ -60,10 +61,11 @@ def login(update, context):
             reply_markup=ReplyKeyboardRemove()
         )
 
-        return GETERPUSERNAME
+        return GET_ERP_USERNAME
     else:
         update.message.reply_text('You have already registered, try using /attendance')
         return ConversationHandler.END
+
 
 def get_erpusername(update, context):
     user = update.message.from_user
@@ -75,13 +77,6 @@ def get_erpusername(update, context):
     return GET_ERP_PASSWORD
 
 
-
-
-# def skip_photo(update, context):
-#     user = update.message.from_user
-#     logger.info("User %s did not send a photo.", user.first_name)
-#     update.message.reply_text('I bet you look great! Now, send me your location please, '
-#                               'or send /skip.')
 def get_erppassword(update, context):
     user = update.message.from_user
     msg = update.message.text
@@ -101,6 +96,7 @@ def get_erppassword(update, context):
     # /start conversation has ended
     return ConversationHandler.END
 
+
 def logout(update, context):
     user = update.message.from_user
     telegram_id = user.id
@@ -112,6 +108,7 @@ def logout(update, context):
     libvaasu.delete_from_table(telegram_id)
     return ConversationHandler.END
 
+
 def stop(update, context):
     user = update.message.from_user
     logger.info("User %s stop its working...", user.first_name)
@@ -120,12 +117,14 @@ def stop(update, context):
         'Show some love when you see us ❤. May be with some treat. 😊'
         'Bye! I hope we can meet again at Iraani. 😉',
         reply_markup=ReplyKeyboardRemove())
-    
+
     return ConversationHandler.END
+
 
 def error(update, context):
     """Log Errors caused by Updates."""
     logger.warning('Update "%s" caused error "%s"', update, context.error)
+
 
 def getattendance(update, context):
     user = update.message.from_user
@@ -142,12 +141,13 @@ def getattendance(update, context):
         update.message.reply_text("It seems you have not registered yet. Register with /login")
     return ConversationHandler.END
 
+
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
 
-    #Creates table in the database
+    # Creates table in the database
     libvaasu.create_table()
 
     updater = Updater(os.getenv('BOT_TOKEN'),use_context=True)
