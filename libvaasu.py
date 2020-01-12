@@ -2,10 +2,9 @@ import requests
 import json
 import sqlite3
 
-
 def create_table():
     conn = sqlite3.connect("Attendance.sqlite3")
-    conn.execute('''CREATE TABLE IF NOT EXISTS CREDENTIALS 
+    conn.execute('''CREATE TABLE IF NOT EXISTS CREDENTIALS
          (username  CHAR(30)  NOT NULL,
          password   CHAR(30)   NOT NULL,
          telegram_id    CHAR(30)    NOT NULL);''')

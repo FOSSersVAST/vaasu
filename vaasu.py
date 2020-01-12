@@ -30,17 +30,18 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-GETERPUSERNAME, GETERPPASSWORD = range(2)
+GET_ERP_USERNAME, GET_ERP_PASSWORD = range(2)
 
 load_dotenv()
 
 # For storing temporary values in conversations
+
 temp = {
-	'erpusernames': {}
+    'erpusernames': {}
 }
 
-def start(update, context):
 
+def start(update, context):
     update.message.reply_text(
         'Hi! My name is Vaassu Bot. I will get all attendence details, '
         'so that you guys can bunk class more often 😜.\n\n'
@@ -49,6 +50,7 @@ def start(update, context):
         reply_markup=ReplyKeyboardRemove())
 
     return
+
 
 def login(update, context):
     user = update.message.from_user
@@ -59,42 +61,32 @@ def login(update, context):
             reply_markup=ReplyKeyboardRemove()
         )
 
-        return GETERPUSERNAME
+        return GET_ERP_USERNAME
     else:
         update.message.reply_text('You have already registered, try using /attendance')
         return ConversationHandler.END
+
 
 def get_erpusername(update, context):
     user = update.message.from_user
     msg = update.message.text
     logger.info("User %s started the bot.", user.first_name)
-
     temp['erpusernames'][user.id] = msg
+    update.message.reply_text("Okay, now tell me your ERP password: ")
 
-    update.message.reply_text('Okay, now tell me your ERP password:')
-
-    return GETERPPASSWORD
-
+    return GET_ERP_PASSWORD
 
 
-
-
-# def skip_photo(update, context):
-#     user = update.message.from_user
-#     logger.info("User %s did not send a photo.", user.first_name)
-#     update.message.reply_text('I bet you look great! Now, send me your location please, '
-#                               'or send /skip.')
 def get_erppassword(update, context):
     user = update.message.from_user
     msg = update.message.text
-
     erpusername = temp['erpusernames'][user.id]
     user = update.message.from_user
     telegram_id = user.id
 
     login = libvaasu.login(erpusername, msg)
     if login == 'wrong':
-        update.message.reply_text('Username or password wrong. Try again : /login')
+        update.message.reply_text('Username or password is wrong! Try again : /login')
     else:
         if libvaasu.add_student(erpusername, msg, telegram_id):
             update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance :)')
@@ -104,35 +96,6 @@ def get_erppassword(update, context):
     # /start conversation has ended
     return ConversationHandler.END
 
-#     return LOCATION
-
-
-def location(update, context):
-    user = update.message.from_user
-    user_location = update.message.location
-    logger.info("Location of %s: %f / %f", user.first_name, user_location.latitude,
-                user_location.longitude)
-    update.message.reply_text('Maybe I can visit you sometime! '
-                              'At last, tell me something about yourself.')
-
-    return BIO
-
-
-# def skip_location(update, context):
-#     user = update.message.from_user
-#     logger.info("User %s did not send a location.", user.first_name)
-#     update.message.reply_text('You seem a bit paranoid! '
-#                               'At last, telogoutll me something about yourself.')
-
-#     return BIO
-
-
-# def bio(update, context):
-#     user = update.message.from_user
-#     logger.info("Bio of %s: %s", user.first_name, update.message.text)
-#     update.message.reply_text('Thank you! I hope we can talk again some day.')
-
-#     return ConversationHandler.END
 
 def logout(update, context):
     user = update.message.from_user
@@ -145,17 +108,18 @@ def logout(update, context):
     libvaasu.delete_from_table(telegram_id)
     return ConversationHandler.END
 
+
 def stop(update, context):
     user = update.message.from_user
     logger.info("User %s stop its working...", user.first_name)
     update.message.reply_text(
         'This bot is created by @fossersvast.'
-        'Show some love when you see us ❤. May be with some treat.😊'
-        'Bye! I hope we can meet again at Iraani.',
+        'Show some love when you see us ❤. May be with some treat. 😊'
+        'Bye! I hope we can meet again at Iraani. 😉',
         reply_markup=ReplyKeyboardRemove())
-    
 
     return ConversationHandler.END
+
 
 def error(update, context):
     """Log Errors caused by Updates."""
@@ -183,7 +147,7 @@ def main():
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
 
-    #Creates table in the database
+    # Creates table in the database
     libvaasu.create_table()
 
     updater = Updater(os.getenv('BOT_TOKEN'),use_context=True)
@@ -196,14 +160,10 @@ def main():
         entry_points=[CommandHandler('login', login)],
 
         states={
-            GETERPUSERNAME: [MessageHandler(Filters.text, get_erpusername)],
+            GET_ERP_USERNAME: [MessageHandler(Filters.text, get_erpusername)],
 
-            GETERPPASSWORD: [MessageHandler(Filters.text, get_erppassword)],
+            GET_ERP_PASSWORD: [MessageHandler(Filters.text, get_erppassword)],
 
-            # BIO: [MessageHandler(Filters.text, bio)],
-
-            # ABOUT: [MessageHandler(Filters.text, about),
-                    # CommandHandler('about',about)]
         },
 
         fallbacks=[CommandHandler('stop', stop)]
