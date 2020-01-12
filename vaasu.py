@@ -22,7 +22,6 @@ from telegram.ext import (Updater, CommandHandler, MessageHandler, Filters,
                           ConversationHandler)
 
 import libvaasu
-import get
 
 
 # Enable logging
@@ -52,12 +51,18 @@ def start(update, context):
     return
 
 def login(update, context):
-	update.message.reply_text(
-		'Tell me your ERP username:',
-		reply_markup=ReplyKeyboardRemove()
-	)
+    user = update.message.from_user
+    telegram_id = user.id
+    if libvaasu.check(telegram_id):
+        update.message.reply_text(
+            'Tell me your ERP username:',
+            reply_markup=ReplyKeyboardRemove()
+        )
 
-	return GETERPUSERNAME
+        return GETERPUSERNAME
+    else:
+        update.message.reply_text('You have already registered, try using /attendance')
+        return ConversationHandler.END
 
 def get_erpusername(update, context):
     user = update.message.from_user
@@ -71,6 +76,14 @@ def get_erpusername(update, context):
     return GETERPPASSWORD
 
 
+
+
+
+# def skip_photo(update, context):
+#     user = update.message.from_user
+#     logger.info("User %s did not send a photo.", user.first_name)
+#     update.message.reply_text('I bet you look great! Now, send me your location please, '
+#                               'or send /skip.')
 def get_erppassword(update, context):
     user = update.message.from_user
     msg = update.message.text
@@ -83,18 +96,13 @@ def get_erppassword(update, context):
     if login == 'wrong':
         update.message.reply_text('Username or password wrong. Try again : /login')
     else:
-        libvaasu.add_student(username, password, telegram_id)
-        update.message.reply_text('Registrtion successful. Now you can use Vaasu bot :)')
+        if libvaasu.add_student(erpusername, msg, telegram_id):
+            update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance :)')
+        else:
+           update.message.reply_text('You have already registered an account, use /attendance') 
 
     # /start conversation has ended
     return ConversationHandler.END
-
-
-# def skip_photo(update, context):
-#     user = update.message.from_user
-#     logger.info("User %s did not send a photo.", user.first_name)
-#     update.message.reply_text('I bet you look great! Now, send me your location please, '
-#                               'or send /skip.')
 
 #     return LOCATION
 
@@ -114,7 +122,7 @@ def location(update, context):
 #     user = update.message.from_user
 #     logger.info("User %s did not send a location.", user.first_name)
 #     update.message.reply_text('You seem a bit paranoid! '
-#                               'At last, tell me something about yourself.')
+#                               'At last, telogoutll me something about yourself.')
 
 #     return BIO
 
@@ -126,6 +134,17 @@ def location(update, context):
 
 #     return ConversationHandler.END
 
+def logout(update, context):
+    user = update.message.from_user
+    telegram_id = user.id
+    update.message.reply_text(
+        'This bot is created by @fossersvast.'
+        'Show some love when you see us ❤. May be with some treat.😊'
+        'Bye! I hope we can meet again at Iraani.',
+        reply_markup=ReplyKeyboardRemove())
+    libvaasu.delete_from_table(telegram_id)
+    return ConversationHandler.END
+
 def stop(update, context):
     user = update.message.from_user
     logger.info("User %s stop its working...", user.first_name)
@@ -134,6 +153,7 @@ def stop(update, context):
         'Show some love when you see us ❤. May be with some treat.😊'
         'Bye! I hope we can meet again at Iraani.',
         reply_markup=ReplyKeyboardRemove())
+    
 
     return ConversationHandler.END
 
@@ -142,17 +162,31 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
-def getattendance(username, password):
+def getattendance(update, context):
     user = update.message.from_user
     telegram_id = user.id
-    Attendance = get.get_attendance(username, password)
+    Attendance = libvaasu.get_attendance(telegram_id)
+    if Attendance=={}:
+        update.message.reply_text("Seems like there is some issues with the website!")
+    elif Attendance:
+        new_Attendance = ""
+        for i,j in Attendance.items():
+            new_Attendance += i + " - " + str(j) + "\n"
+        update.message.reply_text(new_Attendance)
+    else:
+        update.message.reply_text("It seems you have not registered yet. Register with /login")
+    return ConversationHandler.END
 
 
 def main():
     # Create the Updater and pass it your bot's token.
     # Make sure to set use_context=True to use the new context based callbacks
     # Post version 12 this will no longer be necessary
-    updater = Updater(os.getenv('BOT_TOKEN')) #use_context=True)
+
+    #Creates table in the database
+    libvaasu.create_table()
+
+    updater = Updater(os.getenv('BOT_TOKEN'),use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
@@ -176,6 +210,7 @@ def main():
     )
 
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("attendance",getattendance))
     dp.add_handler(conv_handler)
 
     # log all errors
