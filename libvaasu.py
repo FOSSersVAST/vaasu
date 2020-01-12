@@ -10,12 +10,36 @@ def create_table():
          password   CHAR(30)   NOT NULL,
          telegram_id    CHAR(30)    NOT NULL);''')
 
+def check(telegram_id):
+    conn = sqlite3.connect("Attendance.sqlite3")
+    cur = conn.cursor()
+    data = cur.execute("select * from CREDENTIALS where telegram_id=?",(telegram_id,))
+    
+    if data.fetchall() == []:
+        conn.close()
+        return True
+    else:
+        conn.close()
+        return False
+
+def delete_from_table(telegram_id):
+    conn = sqlite3.connect("Attendance.sqlite3")
+    cur = conn.cursor()
+    cur.execute("delete from CREDENTIALS where telegram_id=?",(telegram_id,))
+    conn.commit()
+
 def add_student(username, password, telegram_id):
     conn = sqlite3.connect("Attendance.sqlite3")
     cur = conn.cursor()
-    cur.execute("INSERT INTO CREDENTIALS VALUES(?,?,?)",(username, password, telegram_id))
+    data = cur.execute("select * from CREDENTIALS where telegram_id=?",(telegram_id,))
+    if data.fetchall() == []:
+        cur.execute("INSERT INTO CREDENTIALS VALUES(?,?,?)",(username, password, telegram_id))
+    else:
+        conn.close()
+        return False
     conn.commit()
     conn.close()
+    return True
 
 def login(username, password):
     username = username.upper()
@@ -50,7 +74,6 @@ def get_attendance(telegram_id):
     #Gets the session id and sid
     erplogin = login(username, password)
     if (erplogin == 'wrong'):
-        print('Username or password wrong')
         raise Exception('Password wrong')
     else:
         sid = erplogin[0]

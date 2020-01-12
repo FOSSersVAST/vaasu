@@ -51,12 +51,18 @@ def start(update, context):
     return
 
 def login(update, context):
-	update.message.reply_text(
-		'Tell me your ERP username:',
-		reply_markup=ReplyKeyboardRemove()
-	)
+    user = update.message.from_user
+    telegram_id = user.id
+    if libvaasu.check(telegram_id):
+        update.message.reply_text(
+            'Tell me your ERP username:',
+            reply_markup=ReplyKeyboardRemove()
+        )
 
-	return GETERPUSERNAME
+        return GETERPUSERNAME
+    else:
+        update.message.reply_text('You have already registered, try using /attendance')
+        return ConversationHandler.END
 
 def get_erpusername(update, context):
     user = update.message.from_user
@@ -90,8 +96,10 @@ def get_erppassword(update, context):
     if login == 'wrong':
         update.message.reply_text('Username or password wrong. Try again : /login')
     else:
-        libvaasu.add_student(erpusername, msg, telegram_id)
-        update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance :)')
+        if libvaasu.add_student(erpusername, msg, telegram_id):
+            update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance :)')
+        else:
+           update.message.reply_text('You have already registered an account, use /attendance') 
 
     # /start conversation has ended
     return ConversationHandler.END
@@ -126,6 +134,17 @@ def location(update, context):
 
 #     return ConversationHandler.END
 
+def logout(update, context):
+    user = update.message.from_user
+    telegram_id = user.id
+    update.message.reply_text(
+        'This bot is created by @fossersvast.'
+        'Show some love when you see us ❤. May be with some treat.😊'
+        'Bye! I hope we can meet again at Iraani.',
+        reply_markup=ReplyKeyboardRemove())
+    libvaasu.delete_from_table(telegram_id)
+    return ConversationHandler.END
+
 def stop(update, context):
     user = update.message.from_user
     logger.info("User %s stop its working...", user.first_name)
@@ -134,6 +153,7 @@ def stop(update, context):
         'Show some love when you see us ❤. May be with some treat.😊'
         'Bye! I hope we can meet again at Iraani.',
         reply_markup=ReplyKeyboardRemove())
+    
 
     return ConversationHandler.END
 
@@ -149,7 +169,10 @@ def getattendance(update, context):
     if Attendance=={}:
         update.message.reply_text("Seems like there is some issues with the website!")
     elif Attendance:
-        update.message.reply_text(Attendance)
+        new_Attendance = ""
+        for i,j in Attendance.items():
+            new_Attendance += i + " - " + str(j) + "\n"
+        update.message.reply_text(new_Attendance)
     else:
         update.message.reply_text("It seems you have not registered yet. Register with /login")
     return ConversationHandler.END
