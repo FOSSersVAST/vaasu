@@ -122,7 +122,7 @@ def location(update, context):
 #     user = update.message.from_user
 #     logger.info("User %s did not send a location.", user.first_name)
 #     update.message.reply_text('You seem a bit paranoid! '
-#                               'At last, tell me something about yourself.')
+#                               'At last, telogoutll me something about yourself.')
 
 #     return BIO
 
