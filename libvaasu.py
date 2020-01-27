@@ -1,6 +1,8 @@
 import requests
 import json
 import sqlite3
+from cryptography.fernet import Fernet
+import os
 
 def create_table():
     conn = sqlite3.connect("Attendance.sqlite3")
@@ -32,6 +34,9 @@ def add_student(username, password, telegram_id):
     cur = conn.cursor()
     data = cur.execute("select * from CREDENTIALS where telegram_id=?",(telegram_id,))
     if data.fetchall() == []:
+        passkey = os.getenv('passkey').encode()
+        f = Fernet(passkey)
+        password = f.encrypt(password.encode())
         cur.execute("INSERT INTO CREDENTIALS VALUES(?,?,?)",(username, password, telegram_id))
     else:
         conn.close()
@@ -67,7 +72,11 @@ def get_attendance(telegram_id):
     try:
         username = data[0][0]
         password = data[0][1]
+        passkey = os.getenv('passkey').encode()
+        f = Fernet(passkey)
+        password = f.decrypt(password).decode()
     except IndexError:
+        conn.close()
         return False
     conn.close()
     #Gets the session id and sid
