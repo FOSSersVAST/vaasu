@@ -43,8 +43,8 @@ temp = {
 
 def start(update, context):
     update.message.reply_text(
-        'Hi! My name is Vaassu Bot. I will get all attendence details, '
-        'so that you guys can bunk class more often 😜.\n\n'
+        'Hi! I am Vast Attendance bot. I will get all attendence details\n'
+        'We care about your privacy. So we encrypt your password before storing it\n',
         'Setup this bot : /login\n'
         'Get attendance: /attendance',
         reply_markup=ReplyKeyboardRemove())
@@ -129,16 +129,20 @@ def error(update, context):
 def getattendance(update, context):
     user = update.message.from_user
     telegram_id = user.id
-    Attendance = libvaasu.get_attendance(telegram_id)
-    if Attendance=={}:
-        update.message.reply_text("Seems like there is some issues with the website!")
-    elif Attendance:
-        new_Attendance = ""
-        for i,j in Attendance.items():
-            new_Attendance += i + " - " + str(j) + "\n"
-        update.message.reply_text(new_Attendance)
-    else:
+    if libvaasu.check(telegram_id):
         update.message.reply_text("It seems you have not registered yet. Register with /login")
+    else:
+        update.message.reply_text("Checking the attendance, This may take some time")
+        Attendance = libvaasu.get_attendance(telegram_id)
+        if Attendance=={}:
+            update.message.reply_text("Seems like there is some issues with the website!")
+        elif Attendance:
+            new_Attendance = ""
+            for i,j in Attendance.items():
+                new_Attendance += i + " - " + str(j) + "%\n"
+            update.message.reply_text(new_Attendance)
+    # else:
+    #     update.message.reply_text("It seems you have not registered yet. Register with /login")
     return ConversationHandler.END
 
 
