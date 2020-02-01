@@ -57,7 +57,7 @@ def login(update, context):
     telegram_id = user.id
     if libvaasu.check(telegram_id):
         update.message.reply_text(
-            'We care about your privacy. So, we encrypt your password before storing it in our database.\n\nNow tell me your ERP username',
+            'We care about your privacy. So, we encrypt your password before storing it in our database.\n\nNow please tell me your ERP username',
             reply_markup=ReplyKeyboardRemove()
         )
 
@@ -91,7 +91,7 @@ def get_erppassword(update, context):
         if libvaasu.add_student(erpusername, msg, telegram_id):
             update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance\n')
         else:
-           update.message.reply_text('You have already registered an account, use /attendance') 
+           update.message.reply_text('You have already registered an account, use /attendance')
 
     # /start conversation has ended
     return ConversationHandler.END
