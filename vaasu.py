@@ -43,8 +43,8 @@ temp = {
 
 def start(update, context):
     update.message.reply_text(
-        'Hi! I am Vast Attendance bot. I will get all attendence details\n'
-        'We care about your privacy. So we encrypt your password before storing it\n',
+        'Hi there 👋!\nI am VAST Attendance bot. I will get all your subjects\' attendance details easily!\n\n'
+        'Source Code : https://github.com/FOSSersVAST/vaasu\n\n'
         'Setup this bot : /login\n'
         'Get attendance: /attendance',
         reply_markup=ReplyKeyboardRemove())
@@ -57,7 +57,7 @@ def login(update, context):
     telegram_id = user.id
     if libvaasu.check(telegram_id):
         update.message.reply_text(
-            'Tell me your ERP username:',
+            'We care about your privacy. So, we encrypt your password before storing it in our database.\n\nNow tell me your ERP username',
             reply_markup=ReplyKeyboardRemove()
         )
 
@@ -89,7 +89,7 @@ def get_erppassword(update, context):
         update.message.reply_text('Username or password is wrong! Try again : /login')
     else:
         if libvaasu.add_student(erpusername, msg, telegram_id):
-            update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance :)')
+            update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance\n')
         else:
            update.message.reply_text('You have already registered an account, use /attendance') 
 
