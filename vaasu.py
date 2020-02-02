@@ -43,8 +43,8 @@ temp = {
 
 def start(update, context):
     update.message.reply_text(
-        'Hi! My name is Vaassu Bot. I will get all attendence details, '
-        'so that you guys can bunk class more often 😜.\n\n'
+        'Hi there 👋!\nI am VAST Attendance bot. I will get all your subjects\' attendance details easily!\n\n'
+        'Source Code : https://github.com/FOSSersVAST/vaasu\n\n'
         'Setup this bot : /login\n'
         'Get attendance: /attendance',
         reply_markup=ReplyKeyboardRemove())
@@ -57,7 +57,7 @@ def login(update, context):
     telegram_id = user.id
     if libvaasu.check(telegram_id):
         update.message.reply_text(
-            'Tell me your ERP username:',
+            'We care about your privacy. So, we encrypt your password before storing it in our database.\n\nNow please tell me your ERP username',
             reply_markup=ReplyKeyboardRemove()
         )
 
@@ -89,9 +89,9 @@ def get_erppassword(update, context):
         update.message.reply_text('Username or password is wrong! Try again : /login')
     else:
         if libvaasu.add_student(erpusername, msg, telegram_id):
-            update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance :)')
+            update.message.reply_text('Registration successful. Now you can use Vaasu bot. Use /attendance to get your attendance\n')
         else:
-           update.message.reply_text('You have already registered an account, use /attendance') 
+           update.message.reply_text('You have already registered an account, use /attendance')
 
     # /start conversation has ended
     return ConversationHandler.END
@@ -129,16 +129,20 @@ def error(update, context):
 def getattendance(update, context):
     user = update.message.from_user
     telegram_id = user.id
-    Attendance = libvaasu.get_attendance(telegram_id)
-    if Attendance=={}:
-        update.message.reply_text("Seems like there is some issues with the website!")
-    elif Attendance:
-        new_Attendance = ""
-        for i,j in Attendance.items():
-            new_Attendance += i + " - " + str(j) + "\n"
-        update.message.reply_text(new_Attendance)
-    else:
+    if libvaasu.check(telegram_id):
         update.message.reply_text("It seems you have not registered yet. Register with /login")
+    else:
+        update.message.reply_text("Checking the attendance, This may take some time")
+        Attendance = libvaasu.get_attendance(telegram_id)
+        if Attendance=={}:
+            update.message.reply_text("Seems like there is some issues with the website!")
+        elif Attendance:
+            new_Attendance = ""
+            for i,j in Attendance.items():
+                new_Attendance += i + " - " + str(j) + "%\n"
+            update.message.reply_text(new_Attendance)
+    # else:
+    #     update.message.reply_text("It seems you have not registered yet. Register with /login")
     return ConversationHandler.END
 
 
