@@ -45,8 +45,9 @@ def start(update, context):
     update.message.reply_text(
         'Hi there 👋!\nI am VAST Attendance bot. I will get all your subjects\' attendance details easily!\n\n'
         'Source Code : https://github.com/FOSSersVAST/vaasu\n\n'
+        'Follow us on telegram : @FOSSersVAST\n\n'
         'Setup this bot : /login\n'
-        'Get attendance: /attendance',
+        'Get attendance : /attendance',
         reply_markup=ReplyKeyboardRemove())
 
     return
@@ -139,7 +140,7 @@ def getattendance(update, context):
         elif Attendance:
             new_Attendance = ""
             for i,j in Attendance.items():
-                new_Attendance += i + " - " + str(j) + "%\n"
+                new_Attendance += i + " - " + str(j) + "%\n\n"
             update.message.reply_text(new_Attendance)
     # else:
     #     update.message.reply_text("It seems you have not registered yet. Register with /login")
@@ -175,6 +176,7 @@ def main():
 
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("attendance",getattendance))
+    dp.add_handler(CommandHandler("logout",logout))
     dp.add_handler(conv_handler)
 
     # log all errors
