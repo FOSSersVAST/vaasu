@@ -62,6 +62,33 @@ def login(username, password):
         return sid, session_id
 
 
+def retrieve_attendance(sid, session_id):
+    # Gets args value
+    url = "https://erp.vidyaacademy.ac.in/web/dataset/call_kw"
+    payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status","method":"create","args":[{}],"kwargs":{"context":{}},"session_id":session_id,"context":{}}}
+    r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
+    args = r.json()["result"]
+
+
+    url = "https://erp.vidyaacademy.ac.in/web/dataset/call_button"
+    payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status","method":"button_check_status","domain_id":"null","context_id":1,"args":[[args],{}],"session_id":session_id},"id":"r54"}
+    r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
+
+    # Gets the subject id
+    url = "https://erp.vidyaacademy.ac.in/web/dataset/call_kw"
+    payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status","method":"read","args":[[args],["atten_status"]],"kwargs":{"context":{}},"session_id":session_id,"context":{}}}
+    r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
+    subs = r.json()["result"][0]["atten_status"]
+
+    # Gets the attendance
+    payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status.lines","method":"read","args":[subs,["course","course_percentage"]],"kwargs":{"context":{}},"session_id":session_id,"context":{}}}
+    r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
+    Attendance = {}
+    for i in r.json()["result"]:
+        Attendance[i["course"][1]] = i["course_percentage"]
+    return Attendance
+
+
 def get_attendance(telegram_id):
 
     telegram_id = (telegram_id,)
@@ -79,7 +106,8 @@ def get_attendance(telegram_id):
         conn.close()
         return False
     conn.close()
-    #Gets the session id and sid
+
+    # Gets the session id and sid
     erplogin = login(username, password)
     if (erplogin == 'wrong'):
         raise Exception('Password wrong')
@@ -87,27 +115,4 @@ def get_attendance(telegram_id):
         sid = erplogin[0]
         session_id = erplogin[1]
 
-    #Gets args value
-    url = "https://erp.vidyaacademy.ac.in/web/dataset/call_kw"
-    payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status","method":"create","args":[{}],"kwargs":{"context":{}},"session_id":session_id,"context":{}}}
-    r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
-    args = r.json()["result"]
-
-
-    url = "https://erp.vidyaacademy.ac.in/web/dataset/call_button"
-    payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status","method":"button_check_status","domain_id":"null","context_id":1,"args":[[args],{}],"session_id":session_id},"id":"r54"}
-    r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
-
-    #Gets the subject id
-    url = "https://erp.vidyaacademy.ac.in/web/dataset/call_kw"
-    payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status","method":"read","args":[[args],["atten_status"]],"kwargs":{"context":{}},"session_id":session_id,"context":{}}}
-    r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
-    subs = r.json()["result"][0]["atten_status"]
-
-    #Gets the attendance
-    payload = {"jsonrpc":"2.0","method":"call","params":{"model":"vict.academics.duty.leave.status.lines","method":"read","args":[subs,["course","course_percentage"]],"kwargs":{"context":{}},"session_id":session_id,"context":{}}}
-    r = requests.post(url,data=json.dumps(payload),cookies={"sid":sid})
-    Attendance = {}
-    for i in r.json()["result"]:
-        Attendance[i["course"][1]] = i["course_percentage"]
-    return Attendance
+    return retrieve_attendance(sid, session_id)
