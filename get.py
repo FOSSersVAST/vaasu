@@ -9,8 +9,7 @@ def get_attendance(username, password):
     #Gets the session id and sid
     login = libvaasu.login(username, password)
     if (login == 'wrong'):
-        print('Username or password is wrong!')
-        #raise Exception('Password wrong')
+        raise Exception('Username or password is wrong!')
     else:
         sid = login[0]
         session_id = login[1]
